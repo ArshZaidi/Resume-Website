@@ -12,21 +12,23 @@ export default function EducationStation({ data, active }: StationPanelProps) {
         <RevealText text="Formal training." active={active} />
       </h2>
 
+      <p className="panel__lead fade-up" style={{ transitionDelay: "120ms" }}>
+        Fourteen years at Delhi Public School. Extensions outward through IIT
+        Madras and DELF French.
+      </p>
+
       <div className="row-list">
-        {data.education.map((e, i) => (
+        {data.education.map((entry, i) => (
           <div
             className="row fade-up"
-            key={e.id}
-            style={{ transitionDelay: `${140 + i * 70}ms` }}
+            key={entry.id}
+            style={{ transitionDelay: `${180 + i * 50}ms` }}
           >
-            <div className="row__period">{e.period}</div>
+            <div className="row__period">{entry.period.split("—")[0].trim()}</div>
             <div className="row__main">
-              <strong>{e.institution}</strong>
-              <span> — {e.credential}</span>
-              <br />
-              <span style={{ fontSize: "0.86em" }}>{e.detail}</span>
+              <strong>{entry.institution}</strong>
+              <span> · {entry.credential}</span>
             </div>
-            {e.score ? <div className="row__score">{e.score}</div> : <div />}
           </div>
         ))}
       </div>

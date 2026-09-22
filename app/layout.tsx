@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import {
+  Inter,
+  Space_Grotesk,
+  Source_Serif_4,
+  JetBrains_Mono,
+} from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { TransitionProvider } from "@/components/journey/TransitionProvider";
@@ -16,6 +21,12 @@ const grotesk = Space_Grotesk({
   display: "swap",
 });
 
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif-family",
+  display: "swap",
+});
+
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono-family",
@@ -26,29 +37,29 @@ const SITE = "https://arshzaidi.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: "Arsh Zaidi — Developer & AI Builder",
+  title: "Arsh Raza Zaidi — Developer & AI Builder",
   description:
     "Founder of MYRAQ.ai. Student, developer and AI builder working across applied machine learning, full-stack product and research.",
   keywords: [
-    "Arsh Zaidi",
+    "Arsh Raza Zaidi",
     "MYRAQ",
     "AI developer",
     "machine learning",
     "Next.js portfolio",
   ],
-  authors: [{ name: "Arsh Zaidi" }],
+  authors: [{ name: "Arsh Raza Zaidi" }],
   openGraph: {
-    title: "Arsh Zaidi — Developer & AI Builder",
+    title: "Arsh Raza Zaidi — Developer & AI Builder",
     description:
       "A resume you travel through. Scroll the railway from Departure to Destination.",
     url: SITE,
-    siteName: "Arsh Zaidi",
+    siteName: "Arsh Raza Zaidi",
     type: "website",
     locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Arsh Zaidi — Developer & AI Builder",
+    title: "Arsh Raza Zaidi — Developer & AI Builder",
     description: "Founder of MYRAQ.ai. Applied ML, product and research.",
   },
   robots: { index: true, follow: true },
@@ -69,11 +80,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${grotesk.variable} ${mono.variable}`}
+      className={`${inter.variable} ${grotesk.variable} ${serif.variable} ${mono.variable}`}
       style={
         {
           "--font-body": "var(--font-body-family), system-ui, sans-serif",
-          "--font-display": "var(--font-display-family), system-ui, sans-serif",
+          // Display now maps to the editorial serif — Claude-style headlines
+          // throughout the site, homepage included.
+          "--font-display": "var(--font-serif-family), Georgia, serif",
+          "--font-serif": "var(--font-serif-family), Georgia, serif",
           "--font-mono": "var(--font-mono-family), ui-monospace, monospace",
         } as React.CSSProperties
       }

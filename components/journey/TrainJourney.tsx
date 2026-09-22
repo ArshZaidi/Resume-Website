@@ -30,6 +30,7 @@ import Landscape from "./Landscape";
 import StationSign from "./StationSign";
 import JourneyProgress from "./JourneyProgress";
 import { stationPanels } from "@/components/stations/registry";
+import ContactStation from "@/components/stations/ContactStation";
 
 /* ------------------------------------------------------------------ */
 /* TUNING                                                              */
@@ -47,10 +48,13 @@ const NEAR = 1.32;
 const SIGN_OFFSET = 330;
 const THEME_STEPS = 70;
 
-/** Progress points at which the intro fades out and the outro fades in. */
-const INTRO_FADE_RATE = 16; // intro reaches 0 at progress = 1/16 ≈ 0.0625
-const OUTRO_START = 0.9; // outro begins appearing
-const OUTRO_FADE_RATE = 10; // outro reaches 1 at progress = 1.0
+const OUTRO_START = 0.9;
+const OUTRO_FADE_RATE = 10;
+
+/* Intro timing (seconds) */
+const INTRO_START_DELAY = 0.35;
+const INTRO_HOLD = 1.4;
+const INTRO_FADE = 1.0;
 
 /* ------------------------------------------------------------------ */
 /* TRAIN MOTION MODEL                                                  */
@@ -99,6 +103,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [introVisible, setIntroVisible] = useState(true);
 
   const reduced = usePrefersReducedMotion();
 
@@ -120,6 +125,9 @@ export default function TrainJourney({ stations, portfolio }: Props) {
     ]);
   }, [stations]);
 
+  /* ---------------------------------------------------------------- */
+  /* RENDER LOOP — parallax, train, stations, theme, outro             */
+  /* Intro is NOT touched here — it runs on its own mount timeline.     */
   /* ---------------------------------------------------------------- */
 
   const render = useCallback(
@@ -182,13 +190,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         setActiveIndex(bestIdx);
       }
 
-      // ---- intro / outro overlays ----
-      if (introRef.current) {
-        const op = clamp(1 - p * INTRO_FADE_RATE);
-        introRef.current.style.opacity = op.toFixed(3);
-        introRef.current.style.pointerEvents = op > 0.5 ? "auto" : "none";
-        introRef.current.style.visibility = op < 0.005 ? "hidden" : "visible";
-      }
       if (outroRef.current) {
         const op = clamp((p - OUTRO_START) * OUTRO_FADE_RATE);
         outroRef.current.style.opacity = op.toFixed(3);
@@ -234,10 +235,71 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   }, [render]);
 
   /* ---------------------------------------------------------------- */
+  /* INTRO — timed timeline, plays once on mount, blocks scroll        */
+  /* ---------------------------------------------------------------- */
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    if (reduced) {
+      setIntroVisible(false);
+      return;
+    }
+
+    const intro = introRef.current;
+    if (!intro) return;
+
+    registerGsap();
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const ctx = gsap.context(() => {
+      const inner = intro.querySelectorAll<HTMLElement>(
+        ".intro-overlay__kicker, .intro-overlay__title, .intro-overlay__rule, .intro-overlay__tagline, .intro-overlay__actions, .intro-overlay__hint"
+      );
+
+      gsap.set(inner, { opacity: 0, y: 18 });
+      gsap.set(intro, { opacity: 1, display: "flex" });
+
+      const tl = gsap.timeline({
+        delay: INTRO_START_DELAY,
+        onComplete: () => {
+          setIntroVisible(false);
+          document.body.style.overflow = prevOverflow;
+          ScrollTrigger.refresh();
+        },
+      });
+
+      tl.to(inner, {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        stagger: 0.12,
+        ease: "power3.out",
+      });
+
+      tl.to({}, { duration: INTRO_HOLD });
+
+      tl.to(intro, {
+        opacity: 0,
+        duration: INTRO_FADE,
+        ease: "power2.inOut",
+      });
+    }, intro);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      ctx.revert();
+    };
+  }, [reduced]);
+
+  /* ---------------------------------------------------------------- */
+  /* SCROLL SCENE — pinned journey                                     */
+  /* ---------------------------------------------------------------- */
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
     if (reduced) return;
 
     registerGsap();
@@ -336,6 +398,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             </section>
           );
         })}
+        <section
+          id="station-contact"
+          className="fallback__station fallback__station--contact"
+        >
+          <ContactStation data={portfolio} active />
+        </section>
       </div>
     );
   }
@@ -352,12 +420,10 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
       <section className="journey" ref={sectionRef} aria-label="Journey">
         <div className="journey__scene" ref={sceneRef}>
-          {/* SKY */}
           <div className="sky__glow" />
           <div className="sky__haze" />
           <div className="sky__dust" />
 
-          {/* FAR */}
           <Landscape
             ref={farRef}
             className="layer layer--far"
@@ -367,7 +433,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             opacity={0.5}
           />
 
-          {/* MID */}
           <Landscape
             ref={midRef}
             className="layer layer--mid"
@@ -377,7 +442,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             opacity={0.85}
           />
 
-          {/* WORLD */}
           <div className="layer layer--world" ref={worldRef}>
             <Railway worldLength={worldLength} margin={margin} />
 
@@ -406,10 +470,8 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             ))}
           </div>
 
-          {/* TRAIN */}
           <Train ref={trainRef} />
 
-          {/* NEAR */}
           <div className="layer layer--near" ref={nearRef}>
             {stations.map((s, i) => (
               <div
@@ -429,7 +491,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             ))}
           </div>
 
-          {/* STATION PANELS */}
           <div className="panels">
             {stations.map((s, i) => {
               const Panel = stationPanels[s.id];
@@ -449,90 +510,73 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             })}
           </div>
 
-          {/* VIGNETTE */}
           <div className="vignette" />
 
-          {/* INTRO OVERLAY */}
-          <div
-            ref={introRef}
-            className="intro-overlay"
-            aria-label="Introduction"
-          >
-            <div className="intro-overlay__inner">
-              <div className="intro-overlay__kicker u-mono">
-                Digital Journey · {new Date().getFullYear()}
-              </div>
-              <h1 className="intro-overlay__title u-display">{profile.name}</h1>
-              <p className="intro-overlay__tagline">{profile.shortRole}</p>
+          {introVisible && (
+            <div
+              ref={introRef}
+              className="intro-overlay"
+              aria-label="Introduction"
+            >
+              <div className="intro-overlay__bg" aria-hidden="true" />
 
-              <div className="intro-overlay__actions">
-                <Link
-                  href={profile.links.github}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="btn"
-                  data-cursor="OPEN"
-                >
-                  GitHub
-                </Link>
-                <Link
-                  href={profile.links.linkedin}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="btn"
-                  data-cursor="OPEN"
-                >
-                  LinkedIn
-                </Link>
-                <Link
-                  href={profile.links.email}
-                  className="btn btn--solid"
-                  data-cursor="OPEN"
-                >
-                  Get in touch
-                </Link>
-              </div>
+              <div className="intro-overlay__inner">
+                <div className="intro-overlay__kicker u-mono">
+                  Digital Journey · {new Date().getFullYear()}
+                </div>
 
-              <div className="intro-overlay__hint" aria-hidden="true">
-                <ArrowDown size={12} strokeWidth={1.6} />
-                <span className="u-mono">Scroll to depart</span>
+                <h1 className="intro-overlay__title u-display">
+                  {profile.name}
+                </h1>
+
+                <span className="intro-overlay__rule" aria-hidden="true" />
+
+                <p className="intro-overlay__tagline">{profile.shortRole}</p>
+
+                <div className="intro-overlay__actions">
+                  <a
+                    href={profile.links.github}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="btn"
+                    data-cursor="OPEN"
+                  >
+                    GitHub
+                  </a>
+                  <a
+                    href={profile.links.linkedin}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="btn"
+                    data-cursor="OPEN"
+                  >
+                    LinkedIn
+                  </a>
+                  <a
+                    href={profile.links.email}
+                    className="btn btn--solid"
+                    data-cursor="MAIL"
+                  >
+                    Get in touch
+                  </a>
+                </div>
+
+                <div className="intro-overlay__hint" aria-hidden="true">
+                  <span className="u-mono">Entering the journey</span>
+                  <ArrowDown size={12} strokeWidth={1.6} />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* OUTRO OVERLAY */}
           <div
             ref={outroRef}
             className="outro-overlay"
             aria-label="Journey complete"
           >
-            <div className="outro-overlay__inner">
-              <div className="outro-overlay__kicker u-mono">
-                Journey complete
-              </div>
-              <h2 className="outro-overlay__title u-display">
-                Let&apos;s build something.
-              </h2>
-              <p className="outro-overlay__tagline">
-                The train stops here. The work doesn&apos;t.
-              </p>
-
-              <div className="outro-overlay__actions">
-                <Link
-                  href="/contact"
-                  className="btn btn--solid"
-                  data-cursor="BOARD"
-                >
-                  Open destination <ArrowUpRight size={12} strokeWidth={1.6} />
-                </Link>
-                <Link href="/" className="btn" data-cursor="HOME">
-                  Return to start
-                </Link>
-              </div>
-            </div>
+            <ContactStation data={portfolio} active />
           </div>
 
-          {/* SCROLL HINT — hidden once the intro is gone */}
           <div
             className="scroll-hint"
             style={{ opacity: progress > 0.02 ? 0 : 1 }}

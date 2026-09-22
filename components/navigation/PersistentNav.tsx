@@ -16,7 +16,7 @@ export default function PersistentNav({ station }: Props) {
   return (
     <nav className="persistent-nav" aria-label="Station navigation">
       <Link href="/" className="persistent-nav__brand" data-cursor="HOME">
-        Arsh Zaidi
+        Arsh Raza Zaidi
       </Link>
 
       <div className="persistent-nav__stations">

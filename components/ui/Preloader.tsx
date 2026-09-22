@@ -13,8 +13,6 @@ export default function Preloader() {
   const pctRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Reduced motion: never start the animation. The `if (reduced)`
-    // early return below keeps this component from rendering at all.
     if (reduced) return;
 
     const counter = { v: 0 };
@@ -48,7 +46,7 @@ export default function Preloader() {
   return (
     <div className="preloader" ref={rootRef} aria-hidden="true">
       <div className="preloader__inner">
-        <div className="preloader__title">Arsh Zaidi</div>
+        <div className="preloader__title">Arsh Raza Zaidi</div>
         <div className="preloader__sub">Digital Journey · Initialising</div>
         <div className="preloader__bar">
           <div className="preloader__fill" ref={fillRef} />

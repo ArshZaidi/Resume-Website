@@ -14,35 +14,24 @@ export default function AboutStation({ data, active }: StationPanelProps) {
         <RevealText text="Builder first." active={active} />
       </h2>
 
-      <div className="panel__lead">
-        {profile.bio.map((p, i) => (
-          <p
-            key={i}
-            className="fade-up"
-            style={{
-              transitionDelay: `${180 + i * 90}ms`,
-              marginTop: i === 0 ? 0 : 14,
-            }}
-          >
-            {p}
-          </p>
-        ))}
-      </div>
+      <p className="panel__lead fade-up" style={{ transitionDelay: "120ms" }}>
+        {profile.tagline}
+      </p>
 
-      <dl className="meta-grid fade-up" style={{ transitionDelay: "420ms" }}>
-        <div className="meta-cell">
-          <dt>Location</dt>
-          <dd>{profile.location}</dd>
+      <div className="row-list">
+        <div className="row fade-up" style={{ transitionDelay: "180ms" }}>
+          <div className="row__period">Role</div>
+          <div className="row__main">{profile.shortRole}</div>
         </div>
-        <div className="meta-cell">
-          <dt>Focus</dt>
-          <dd>{profile.focus}</dd>
+        <div className="row fade-up" style={{ transitionDelay: "220ms" }}>
+          <div className="row__period">Focus</div>
+          <div className="row__main">{profile.focus}</div>
         </div>
-        <div className="meta-cell">
-          <dt>Currently</dt>
-          <dd>{profile.currently}</dd>
+        <div className="row fade-up" style={{ transitionDelay: "260ms" }}>
+          <div className="row__period">Based</div>
+          <div className="row__main">{profile.location}</div>
         </div>
-      </dl>
+      </div>
     </div>
   );
 }

@@ -85,7 +85,6 @@ export interface SkillGroup {
 
 export interface SkillItem {
   name: string;
-  /** Where this skill was actually used. */
   usedIn: string[];
 }
 
@@ -122,8 +121,7 @@ export const profile = {
 };
 
 /* ------------------------------------------------------------------ */
-/* EDUCATION — school only. IIT Madras and DELF live under            */
-/* certifications, not here.                                           */
+/* EDUCATION                                                           */
 /* ------------------------------------------------------------------ */
 
 export const education: EducationEntry[] = [
@@ -166,14 +164,8 @@ export const skills: SkillGroup[] = [
         name: "Java",
         usedIn: ["MIT 6.005 Advanced Software Construction", "Harvard CS50x"],
       },
-      {
-        name: "C",
-        usedIn: ["Harvard CS50x"],
-      },
-      {
-        name: "SQL",
-        usedIn: ["MYRAQ.ai", "HR365"],
-      },
+      { name: "C", usedIn: ["Harvard CS50x"] },
+      { name: "SQL", usedIn: ["MYRAQ.ai", "HR365"] },
     ],
   },
   {
@@ -236,26 +228,11 @@ export const skills: SkillGroup[] = [
     id: "backend",
     label: "Backend & Data",
     items: [
-      {
-        name: "FastAPI",
-        usedIn: ["MYRAQ.ai", "HR365"],
-      },
-      {
-        name: "PostgreSQL & Supabase",
-        usedIn: ["MYRAQ.ai", "HR365"],
-      },
-      {
-        name: "REST APIs",
-        usedIn: ["MYRAQ.ai", "AI-Startup-MCP"],
-      },
-      {
-        name: "FAISS",
-        usedIn: ["HR365"],
-      },
-      {
-        name: "Flask",
-        usedIn: ["Harvard CS50x"],
-      },
+      { name: "FastAPI", usedIn: ["MYRAQ.ai", "HR365"] },
+      { name: "PostgreSQL & Supabase", usedIn: ["MYRAQ.ai", "HR365"] },
+      { name: "REST APIs", usedIn: ["MYRAQ.ai", "AI-Startup-MCP"] },
+      { name: "FAISS", usedIn: ["HR365"] },
+      { name: "Flask", usedIn: ["Harvard CS50x"] },
     ],
   },
   {
@@ -423,12 +400,11 @@ export const experience: ExperienceEntry[] = [
     id: "medium-writing",
     period: "2024 — present",
     role: "Writer & Poet",
-    org: "Medium · Rekhta",
+    org: "Medium",
     summary:
-      "Published writer and poet. Creative non-fiction and poetry across Medium and Rekhta, with a dedicated readership.",
+      "Published writer and poet on Medium. Long-form essays and poetry, written across technical and literary themes.",
     points: [
       "Publish long-form essays and poetry on Medium.",
-      "Submitted poetry to Rekhta, India's largest Urdu literature platform, with a positive editorial response.",
       "Write regularly across technical and literary themes.",
     ],
     proof: ["medium-profile"],
@@ -518,7 +494,7 @@ export const achievements: AchievementGroup[] = [
       },
       {
         title: "Published Writer & Poet",
-        meta: "Medium · Rekhta",
+        meta: "Medium",
         proof: ["medium-profile"],
       },
       {

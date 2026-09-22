@@ -31,7 +31,7 @@ export default function JourneyProgress({
           pointerEvents: visible ? "auto" : "none",
         }}
       >
-        <div className="journey-progress__brand">Arsh Zaidi</div>
+        <div className="journey-progress__brand">Arsh Raza Zaidi</div>
 
         <button
           className="journey-progress__btn"
