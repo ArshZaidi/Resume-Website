@@ -4,8 +4,6 @@ import {
   Space_Grotesk,
   Source_Serif_4,
   JetBrains_Mono,
-  Noto_Serif_Devanagari,
-  Noto_Nastaliq_Urdu,
 } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
@@ -34,20 +32,6 @@ const serif = Source_Serif_4({
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono-family",
-  display: "swap",
-});
-
-const devanagari = Noto_Serif_Devanagari({
-  subsets: ["devanagari"],
-  weight: ["400", "500"],
-  variable: "--font-devanagari-family",
-  display: "swap",
-});
-
-const nastaliq = Noto_Nastaliq_Urdu({
-  subsets: ["arabic"],
-  weight: ["400"],
-  variable: "--font-nastaliq-family",
   display: "swap",
 });
 
@@ -98,7 +82,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${grotesk.variable} ${serif.variable} ${mono.variable} ${devanagari.variable} ${nastaliq.variable}`}
+      className={`${inter.variable} ${grotesk.variable} ${serif.variable} ${mono.variable}`}
       style={
         {
           "--font-body": "var(--font-body-family), system-ui, sans-serif",
@@ -106,12 +90,25 @@ export default function RootLayout({
           "--font-serif": "var(--font-serif-family), Georgia, serif",
           "--font-mono": "var(--font-mono-family), ui-monospace, monospace",
           "--font-devanagari":
-            "var(--font-devanagari-family), 'Noto Serif Devanagari', serif",
+            "'Noto Serif Devanagari', 'Noto Sans Devanagari', system-ui, sans-serif",
           "--font-nastaliq":
-            "var(--font-nastaliq-family), 'Noto Nastaliq Urdu', serif",
+            "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Urdu Typesetting', serif",
         } as React.CSSProperties
       }
     >
+      <head>
+        {/* Loaded via CDN instead of at build time — see comment in globals.css. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500&family=Noto+Nastaliq+Urdu:wght@400&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body>
         <SmoothScroll>
           <TransitionProvider>
