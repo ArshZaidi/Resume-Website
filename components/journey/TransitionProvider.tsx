@@ -31,12 +31,13 @@ export function useRealmTransition(): NavigateFn {
 
 const IDLE: TransitionState = { active: false };
 
-/* Timeline timings (seconds) */
-const BG_IN = 0.4;
-const CONTENT = 0.55;
-const HOLD = 0.18;
-const POST_NAV = 0.15;
-const BG_OUT = 0.45;
+/* Timings (seconds) — tuned for a smooth, cinematic feel */
+const BG_IN = 0.55;
+const CONTENT_STAGGER = 0.09;
+const CONTENT = 0.75;
+const HOLD = 0.28;
+const POST_NAV = 0.25;
+const BG_OUT = 0.6;
 
 export function TransitionProvider({
   children,
@@ -50,7 +51,6 @@ export function TransitionProvider({
   const overlayRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  /* Prefetch all station routes when the browser is idle. */
   useEffect(() => {
     if (typeof window === "undefined") return;
     const w = window as Window & {
@@ -72,7 +72,6 @@ export function TransitionProvider({
 
   const navigate = useCallback<NavigateFn>(
     ({ href, number, title, subtitle }) => {
-      // Reduced motion → straight navigation, no overlay.
       if (reduced) {
         router.push(href);
         return;
@@ -82,7 +81,6 @@ export function TransitionProvider({
 
       setState({ active: true, number, title, subtitle });
 
-      // Wait one frame for the overlay to mount before animating it.
       requestAnimationFrame(() => {
         const overlay = overlayRef.current;
         if (!overlay) {
@@ -95,7 +93,7 @@ export function TransitionProvider({
         );
 
         gsap.set(overlay, { display: "flex", opacity: 0 });
-        gsap.set(animTargets, { opacity: 0, y: 18 });
+        gsap.set(animTargets, { opacity: 0, y: 22 });
 
         const tl = gsap.timeline({
           onComplete: () => {
@@ -107,7 +105,7 @@ export function TransitionProvider({
         tl.to(overlay, {
           opacity: 1,
           duration: BG_IN,
-          ease: "power2.in",
+          ease: "power2.out",
         });
 
         tl.to(
@@ -116,10 +114,10 @@ export function TransitionProvider({
             opacity: 1,
             y: 0,
             duration: CONTENT,
-            stagger: 0.08,
+            stagger: CONTENT_STAGGER,
             ease: "power3.out",
           },
-          "-=0.1"
+          `-=${BG_IN * 0.5}`
         );
 
         tl.to({}, { duration: HOLD });

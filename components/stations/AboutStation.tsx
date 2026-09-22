@@ -1,6 +1,13 @@
 import RevealText from "@/components/ui/RevealText";
 import type { StationPanelProps } from "./types";
 
+const LANGUAGES = [
+  { id: "hi", label: "हिन्दी", script: "devanagari" },
+  { id: "en", label: "English", script: "latin" },
+  { id: "fr", label: "Français", script: "latin" },
+  { id: "ur", label: "اردو", script: "nastaliq" },
+] as const;
+
 export default function AboutStation({ data, active }: StationPanelProps) {
   const { profile } = data;
 
@@ -31,6 +38,18 @@ export default function AboutStation({ data, active }: StationPanelProps) {
           <div className="row__period">Based</div>
           <div className="row__main">{profile.location}</div>
         </div>
+      </div>
+
+      <div className="panel__languages fade-up" style={{ transitionDelay: "320ms" }}>
+        {LANGUAGES.map((lang) => (
+          <span
+            key={lang.id}
+            className="panel__language"
+            data-script={lang.script}
+          >
+            {lang.label}
+          </span>
+        ))}
       </div>
     </div>
   );

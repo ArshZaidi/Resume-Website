@@ -4,6 +4,8 @@ import {
   Space_Grotesk,
   Source_Serif_4,
   JetBrains_Mono,
+  Noto_Serif_Devanagari,
+  Noto_Nastaliq_Urdu,
 } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
@@ -32,6 +34,20 @@ const serif = Source_Serif_4({
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono-family",
+  display: "swap",
+});
+
+const devanagari = Noto_Serif_Devanagari({
+  subsets: ["devanagari"],
+  weight: ["400", "500"],
+  variable: "--font-devanagari-family",
+  display: "swap",
+});
+
+const nastaliq = Noto_Nastaliq_Urdu({
+  subsets: ["arabic"],
+  weight: ["400"],
+  variable: "--font-nastaliq-family",
   display: "swap",
 });
 
@@ -82,13 +98,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${grotesk.variable} ${serif.variable} ${mono.variable}`}
+      className={`${inter.variable} ${grotesk.variable} ${serif.variable} ${mono.variable} ${devanagari.variable} ${nastaliq.variable}`}
       style={
         {
           "--font-body": "var(--font-body-family), system-ui, sans-serif",
           "--font-display": "var(--font-serif-family), Georgia, serif",
           "--font-serif": "var(--font-serif-family), Georgia, serif",
           "--font-mono": "var(--font-mono-family), ui-monospace, monospace",
+          "--font-devanagari":
+            "var(--font-devanagari-family), 'Noto Serif Devanagari', serif",
+          "--font-nastaliq":
+            "var(--font-nastaliq-family), 'Noto Nastaliq Urdu', serif",
         } as React.CSSProperties
       }
     >

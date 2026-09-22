@@ -55,8 +55,18 @@ const INTRO_START_DELAY = 0.35;
 const INTRO_HOLD = 1.4;
 const INTRO_FADE = 1.0;
 
-/** Panel becomes clickable only when the train is essentially stopped. */
-const PANEL_INTERACTIVE_AT = 0.5;
+/**
+ * Camera lead-in at the start of the journey.
+ *
+ * At progress 0 the whole world is shifted right by this many pixels, so
+ * the About station sign lands to the right of the train (the train is
+ * approaching it from the left). The offset tapers to zero by the time
+ * the train reaches About.
+ *
+ * Only affects the visual camera. Train world position, panel activation,
+ * and sign lighting are unchanged.
+ */
+const LEAD_IN = WORLD_SPACING * 0.34; // ≈ 646px
 
 /* ------------------------------------------------------------------ */
 /* TRAIN MOTION MODEL                                                  */
@@ -149,11 +159,20 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
       const trainX = trainWorldX(p, centers);
 
+      // Velocity-based camera nudge (unchanged).
       const v =
         trainWorldX(clamp(p + 0.0015, 0, 1), centers) -
         trainWorldX(clamp(p - 0.0015, 0, 1), centers);
-      const lead = clamp(-v * 1.1, -70, 70);
-      const camX = trainX + lead;
+      const velocityLead = clamp(-v * 1.1, -70, 70);
+
+      // Intro lead-in — only active before the first station, tapering off.
+      const firstStation = centers[0];
+      const introLead =
+        p < firstStation
+          ? LEAD_IN * (1 - smootherstep(p / firstStation))
+          : 0;
+
+      const camX = trainX + velocityLead - introLead;
 
       if (worldRef.current)
         worldRef.current.style.transform = `translate3d(${-camX}px,0,0)`;
@@ -165,7 +184,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         nearRef.current.style.transform = `translate3d(${-camX * NEAR}px,0,0)`;
 
       if (trainRef.current)
-        trainRef.current.style.transform = `translate3d(${-lead}px,0,0)`;
+        trainRef.current.style.transform = `translate3d(${-velocityLead}px,0,0)`;
 
       const speed = clamp(Math.abs(v) / 34);
       scene.style.setProperty("--speed", speed.toFixed(3));
@@ -189,11 +208,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             1
           )}px, 0)`;
           panel.style.visibility = act < 0.005 ? "hidden" : "visible";
-          // Critical: only the panel of the station the train is at can
-          // receive clicks. Otherwise a transparent panel sits above the
-          // signs and swallows every click on the left half of the screen.
-          panel.style.pointerEvents =
-            act > PANEL_INTERACTIVE_AT ? "auto" : "none";
         }
 
         const sign = signRefs.current[i];

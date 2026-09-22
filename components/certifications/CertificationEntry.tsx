@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus, ArrowUpRight } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import type { Certification } from "@/data/portfolio";
 import { getProof } from "@/data/proof";
 import ProofCard from "@/components/proof/ProofCard";
@@ -9,23 +9,52 @@ import ProofCard from "@/components/proof/ProofCard";
 interface Props {
   certification: Certification;
   index: number;
+  /** Renders with a hero treatment — giant serif watermark and larger type. */
+  featured?: boolean;
 }
 
-export default function CertificationEntry({ certification, index }: Props) {
+export default function CertificationEntry({
+  certification,
+  index,
+  featured = false,
+}: Props) {
   const [open, setOpen] = useState(false);
+
   const proofs = (certification.proof ?? [])
     .map((id) => getProof(id))
     .filter(Boolean);
 
+  const toggle = () => setOpen((v) => !v);
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  };
+
   return (
-    <article className="cert-entry" data-open={open}>
-      <button
-        className="cert-entry__header"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        aria-controls={`cert-${certification.id}`}
-        data-cursor={open ? "CLOSE" : "OPEN"}
-      >
+    <article
+      className="cert-entry"
+      data-open={open}
+      data-featured={featured}
+      onClick={toggle}
+      onKeyDown={onKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-expanded={open}
+      aria-controls={`cert-${certification.id}`}
+      data-cursor={open ? "CLOSE" : "OPEN"}
+    >
+      {featured && (
+        <div className="cert-entry__watermark" aria-hidden="true">
+          Français
+        </div>
+      )}
+
+      <span className="cert-entry__accent" aria-hidden="true" />
+
+      <div className="cert-entry__header">
         <span className="cert-entry__index">
           {String(index + 1).padStart(2, "0")}
         </span>
@@ -47,14 +76,18 @@ export default function CertificationEntry({ certification, index }: Props) {
         </span>
 
         <span className="cert-entry__toggle" aria-hidden="true">
-          {open ? <Minus size={14} strokeWidth={1.6} /> : <Plus size={14} strokeWidth={1.6} />}
+          {open ? (
+            <Minus size={14} strokeWidth={1.6} />
+          ) : (
+            <Plus size={14} strokeWidth={1.6} />
+          )}
         </span>
-      </button>
+      </div>
 
       <div
         id={`cert-${certification.id}`}
         className="cert-entry__body"
-        aria-hidden={!open}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="cert-entry__body-inner">
           <div className="cert-field">

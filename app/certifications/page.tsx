@@ -22,6 +22,19 @@ const GROUP_ORDER = [
   "Language",
 ] as const;
 
+const GROUP_LEADS: Record<string, string> = {
+  "AI / ML":
+    "The applied stack — from classical ML foundations to RAG pipelines and the Model Context Protocol.",
+  "Computer Science":
+    "The fundamentals. Formal grounding in the maths and software engineering that everything else sits on.",
+  Cloud:
+    "Production ML at Google Cloud scale — skill badges, arcade labs, and the vision API.",
+  Assessment:
+    "Platform-verified skill certifications. HackerRank's own tests of what I can actually do.",
+  Language:
+    "Three successive levels of the official French-language diploma issued by the French Ministry of Education — each an independent, externally examined qualification.",
+};
+
 export default function CertificationsPage() {
   const station = getStationByRoute("/certifications");
   if (!station) notFound();
@@ -63,20 +76,20 @@ export default function CertificationsPage() {
         </ScrollSection>
 
         {/* ---------------------------------------------------------- */}
-        {/* 02+ — GROUPS                                                */}
+        {/* 02+ — ARCHIVE GROUPS                                        */}
         {/* ---------------------------------------------------------- */}
         {grouped.map((g, gi) => {
           const startIndex = runningIndex;
           runningIndex += g.items.length;
+
+          const isLanguage = g.group === "Language";
 
           return (
             <ScrollSection
               key={g.group}
               number={String(gi + 2).padStart(2, "0")}
               title={g.group}
-              lead={`${g.items.length} ${
-                g.items.length === 1 ? "record" : "records"
-              }.`}
+              lead={GROUP_LEADS[g.group] ?? `${g.items.length} records.`}
             >
               <div className="cert-list">
                 {g.items.map((cert, i) => (
@@ -84,6 +97,7 @@ export default function CertificationsPage() {
                     key={cert.id}
                     certification={cert}
                     index={startIndex + i}
+                    featured={isLanguage && cert.id === "delf-cert"}
                   />
                 ))}
               </div>
@@ -108,9 +122,7 @@ export default function CertificationsPage() {
                 then the machine learning stack, then the RAG and MCP tooling
                 that only makes sense once you know how models actually work.
               </p>
-              <p>
-                The order matters more than the certificates.
-              </p>
+              <p>The order matters more than the certificates.</p>
             </div>
           </SectionReveal>
         </ScrollSection>
