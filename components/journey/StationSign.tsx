@@ -1,25 +1,32 @@
 "use client";
 
 import { forwardRef } from "react";
+import { ArrowRight } from "lucide-react";
 import type { Station } from "@/data/stations";
 
 interface Props {
   station: Station;
   worldX: number;
   offsetX?: number;
+  /** When true, the sign shows the BOARD cue by default. */
+  active?: boolean;
+  onBoard?: (station: Station) => void;
 }
 
-const StationSign = forwardRef<HTMLDivElement, Props>(function StationSign(
-  { station, worldX, offsetX = 0 },
+const StationSign = forwardRef<HTMLButtonElement, Props>(function StationSign(
+  { station, worldX, offsetX = 0, active = false, onBoard },
   ref
 ) {
   return (
-    <div
-      className="sign"
+    <button
+      type="button"
+      className="sign sign--interactive"
       ref={ref}
       style={{ left: worldX + offsetX }}
-      data-active="false"
-      aria-hidden="true"
+      data-active={active}
+      onClick={() => onBoard?.(station)}
+      aria-label={`Board station ${station.number} — ${station.title}`}
+      data-cursor="BOARD"
     >
       <span className="sign__lamp" />
       <span className="sign__lamp-glow" />
@@ -36,11 +43,16 @@ const StationSign = forwardRef<HTMLDivElement, Props>(function StationSign(
           <span className="sign__dot" />
           <span>{station.subtitle}</span>
         </div>
+
+        <div className="sign__cta" aria-hidden="true">
+          <span>BOARD</span>
+          <ArrowRight size={11} strokeWidth={1.8} />
+        </div>
       </div>
 
       <span className="sign__pole" />
       <span className="sign__pole-base" />
-    </div>
+    </button>
   );
 });
 

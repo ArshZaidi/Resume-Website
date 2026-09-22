@@ -1,17 +1,16 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import PersistentNav from "@/components/navigation/PersistentNav";
 import TechnicalIdentity from "@/components/technical/TechnicalIdentity";
 import MagneticScroll from "@/components/scroll/MagneticScroll";
 import ScrollProgress from "@/components/scroll/ScrollProgress";
 import RealmLayer from "@/components/realm/RealmLayer";
+import BackToJourney from "@/components/detail/BackToJourney";
 import { getRealm } from "@/components/realm/realmMap";
 import type { Station } from "@/data/stations";
 
 interface Props {
   station: Station;
   children: React.ReactNode;
-  /** Optional kicker under the station title. */
   kicker?: string;
 }
 
@@ -27,10 +26,7 @@ export default function DetailShell({ station, kicker, children }: Props) {
 
         <header className="detail__hero">
           <div className="detail__hero-inner">
-            <Link href="/" className="detail__back" data-cursor="BOARD">
-              <ArrowLeft size={12} strokeWidth={1.6} />
-              <span>Back to journey</span>
-            </Link>
+            <BackToJourney />
 
             <div className="detail__eyebrow">
               <span>Station {station.number}</span>
@@ -40,9 +36,7 @@ export default function DetailShell({ station, kicker, children }: Props) {
 
             <h1 className="detail__title">{station.title}</h1>
 
-            {realm && (
-              <div className="detail__realm">{realm.mood}</div>
-            )}
+            {realm && <div className="detail__realm">{realm.mood}</div>}
           </div>
         </header>
 

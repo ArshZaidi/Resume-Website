@@ -8,6 +8,8 @@ import {
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { TransitionProvider } from "@/components/journey/TransitionProvider";
+import CustomCursor from "@/components/ui/CustomCursor";
+import NoiseOverlay from "@/components/ui/NoiseOverlay";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -84,8 +86,6 @@ export default function RootLayout({
       style={
         {
           "--font-body": "var(--font-body-family), system-ui, sans-serif",
-          // Display now maps to the editorial serif — Claude-style headlines
-          // throughout the site, homepage included.
           "--font-display": "var(--font-serif-family), Georgia, serif",
           "--font-serif": "var(--font-serif-family), Georgia, serif",
           "--font-mono": "var(--font-mono-family), ui-monospace, monospace",
@@ -94,7 +94,11 @@ export default function RootLayout({
     >
       <body>
         <SmoothScroll>
-          <TransitionProvider>{children}</TransitionProvider>
+          <TransitionProvider>
+            <CustomCursor />
+            <NoiseOverlay />
+            {children}
+          </TransitionProvider>
         </SmoothScroll>
       </body>
     </html>

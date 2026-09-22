@@ -320,12 +320,39 @@ body {
 /* STATION SIGN                                                        */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* STATION SIGN — every sign is a real button                          */
+/* ------------------------------------------------------------------ */
+
 .sign {
   position: absolute;
   top: 46%;
   width: 300px;
   transform: translateX(-50%);
-  will-change: auto;
+  will-change: transform;
+
+  /* Button reset */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.sign:hover,
+.sign:focus-visible {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.sign:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 8px;
+  border-radius: 3px;
 }
 
 /* ---- Signal lamp ---- */
@@ -390,13 +417,24 @@ body {
     0 0 0 1px rgb(255 255 255 / 0.015) inset;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: transform 0.6s var(--ease-out-expo),
-    box-shadow 0.6s var(--ease-out-expo),
-    border-color 0.5s ease;
+  transition:
+    transform 0.5s var(--ease-out-expo),
+    box-shadow 0.5s var(--ease-out-expo),
+    border-color 0.4s ease;
   transform-origin: center bottom;
 }
 
-/* Accent bar on the left */
+/* Hover / focus glow on the plate */
+.sign:hover .sign__plate,
+.sign:focus-visible .sign__plate {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow:
+    0 30px 70px -20px rgb(0 0 0 / 0.8),
+    0 0 40px -8px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent) inset;
+}
+
+/* Accent bar on the left edge */
 .sign__plate::before {
   content: "";
   position: absolute;
@@ -493,6 +531,39 @@ body {
   flex: 0 0 auto;
 }
 
+/* ------------------------------------------------------------------ */
+/* BOARD cue — reveals on hover/focus, or holds open on the active     */
+/* station. Sits below the subtitle row and pushes the plate taller.   */
+/* ------------------------------------------------------------------ */
+
+.sign__cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s var(--ease-out-expo);
+  pointer-events: none;
+}
+
+.sign:hover .sign__cta,
+.sign:focus-visible .sign__cta,
+.sign[data-active="true"] .sign__cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* ---- Pole ---- */
 .sign__pole {
   position: absolute;
@@ -506,6 +577,7 @@ body {
     var(--line-strong) 0%,
     transparent 100%
   );
+  pointer-events: none;
 }
 
 .sign__pole-base {
@@ -521,6 +593,56 @@ body {
     var(--line-strong) 50%,
     transparent 100%
   );
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* RESPONSIVE                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1024px) {
+  .sign {
+    width: 260px;
+  }
+  .sign__title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 720px) {
+  .sign {
+    top: 40%;
+    width: 200px;
+    transform: translateX(-50%) scale(0.85);
+  }
+  .sign:hover,
+  .sign:focus-visible {
+    transform: translateX(-50%) scale(0.85) translateY(-3px);
+  }
+  .sign__plate {
+    padding: 14px 16px 12px;
+  }
+  .sign__title {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+  .sign__row {
+    margin-bottom: 10px;
+  }
+  .sign__badge {
+    display: none;
+  }
+  .sign__cta {
+    font-size: 8.5px;
+    margin-top: 10px;
+    padding-top: 8px;
+  }
+  .sign__pole {
+    height: 70px;
+  }
+  .sign__pole-base {
+    top: calc(100% + 64px);
+  }
 }
 
 /* ---- Responsive ---- */
@@ -4056,28 +4178,39 @@ body {
   border-top: 1px solid var(--line);
 }
 
-.cert-entry {
-  border-bottom: 1px solid var(--line);
-  transition: background 0.35s ease;
+/* ------------------------------------------------------------------ */
+/* CERT ENTRY — collapsed / expanded body                              */
+/*                                                                     */
+/* Uses max-height + opacity instead of grid fr units. The `0fr`       */
+/* trick resolves to minmax(auto, 0fr) which keeps a content-sized     */
+/* minimum — the entry never fully closes. This does.                  */
+/* ------------------------------------------------------------------ */
+
+.cert-entry__body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.55s var(--ease-out-expo),
+    opacity 0.35s ease;
 }
 
-.cert-entry[data-open="true"] {
-  background: rgb(20 20 22 / 0.35);
+.cert-entry[data-open="true"] .cert-entry__body {
+  max-height: 900px;
+  opacity: 1;
 }
 
-.cert-entry__header {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 42px 1fr auto 32px;
-  gap: 18px;
-  align-items: center;
-  padding: 22px 4px;
-  background: none;
-  border: 0;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-  transition: padding-left 0.4s var(--ease-out-expo);
+.cert-entry__body-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 4px 4px 34px 62px;
+}
+
+@media (max-width: 720px) {
+  .cert-entry__body-inner {
+    padding: 4px 0 28px 0;
+  }
 }
 
 .cert-entry__header:hover,
@@ -4237,4 +4370,208 @@ body {
   .cert-entry__body-inner {
     padding-left: 0;
   }
+}
+
+/* ================================================================== */
+/* REALM TRANSITION — the boarding overlay                             */
+/* ================================================================== */
+
+.realm-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.realm-transition__bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    #0b0c11 0%,
+    #050506 70%
+  );
+}
+
+.realm-transition__rails {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 26%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.realm-transition__rail {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.35) 20%,
+    rgb(255 255 255 / 0.35) 80%,
+    transparent 100%
+  );
+  animation: realm-rail-slide 1.6s linear infinite;
+  transform-origin: center;
+}
+
+.realm-transition__rail:nth-child(2) {
+  animation-delay: 0.2s;
+  opacity: 0.7;
+}
+
+.realm-transition__rail:nth-child(3) {
+  animation-delay: 0.4s;
+  opacity: 0.4;
+}
+
+@keyframes realm-rail-slide {
+  0% {
+    transform: scaleX(0.85);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scaleX(0.85);
+    opacity: 0.2;
+  }
+}
+
+.realm-transition__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.realm-transition__num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.realm-transition__rule {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--accent) 50%,
+    transparent 100%
+  );
+}
+
+.realm-transition__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 4.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.realm-transition__sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .realm-transition__rail {
+    animation: none;
+  }
+}
+
+/* ================================================================== */
+/* SIGN — interactive state                                            */
+/* ================================================================== */
+
+.sign--interactive {
+  cursor: pointer;
+  pointer-events: auto;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.sign--interactive:hover,
+.sign--interactive:focus-visible {
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.sign--interactive:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+.sign--interactive .sign__plate {
+  transition: transform 0.5s var(--ease-out-expo),
+    box-shadow 0.5s var(--ease-out-expo),
+    border-color 0.4s ease;
+}
+
+.sign--interactive:hover .sign__plate,
+.sign--interactive:focus-visible .sign__plate {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow:
+    0 30px 70px -20px rgb(0 0 0 / 0.8),
+    0 0 40px -8px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent) inset;
+}
+
+.sign__cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out-expo);
+}
+
+.sign--interactive:hover .sign__cta,
+.sign--interactive:focus-visible .sign__cta,
+.sign--interactive[data-active="true"] .sign__cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.detail__back {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }

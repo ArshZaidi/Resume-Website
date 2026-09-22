@@ -13,10 +13,6 @@ interface Props {
   state: TransitionState;
 }
 
-/**
- * Full-screen overlay used during station boarding.
- * Renders nothing when inactive.
- */
 const RealmTransition = forwardRef<HTMLDivElement, Props>(
   function RealmTransition({ state }, ref) {
     return (
@@ -36,13 +32,20 @@ const RealmTransition = forwardRef<HTMLDivElement, Props>(
 
         <div className="realm-transition__content">
           {state.number && (
-            <div className="realm-transition__num">{state.number}</div>
+            <div className="realm-transition__num" data-anim="num">
+              {state.number}
+            </div>
           )}
+          <span className="realm-transition__rule" data-anim="rule" />
           {state.title && (
-            <div className="realm-transition__title">{state.title}</div>
+            <div className="realm-transition__title" data-anim="title">
+              {state.title}
+            </div>
           )}
           {state.subtitle && (
-            <div className="realm-transition__sub">{state.subtitle}</div>
+            <div className="realm-transition__sub" data-anim="sub">
+              {state.subtitle}
+            </div>
           )}
         </div>
       </div>

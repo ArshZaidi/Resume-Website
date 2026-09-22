@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -23,6 +22,7 @@ import {
 import { registerGsap } from "@/lib/animations";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { scrollToY } from "@/lib/lenis";
+import { useRealmTransition } from "./TransitionProvider";
 
 import Train from "./Train";
 import Railway from "./Railway";
@@ -51,10 +51,12 @@ const THEME_STEPS = 70;
 const OUTRO_START = 0.9;
 const OUTRO_FADE_RATE = 10;
 
-/* Intro timing (seconds) */
 const INTRO_START_DELAY = 0.35;
 const INTRO_HOLD = 1.4;
 const INTRO_FADE = 1.0;
+
+/** Panel becomes clickable only when the train is essentially stopped. */
+const PANEL_INTERACTIVE_AT = 0.5;
 
 /* ------------------------------------------------------------------ */
 /* TRAIN MOTION MODEL                                                  */
@@ -98,7 +100,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   const introRef = useRef<HTMLDivElement>(null);
   const outroRef = useRef<HTMLDivElement>(null);
 
-  const signRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const signRefs = useRef<(HTMLElement | null)[]>([]);
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -106,6 +108,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   const [introVisible, setIntroVisible] = useState(true);
 
   const reduced = usePrefersReducedMotion();
+  const navigate = useRealmTransition();
 
   const progressRef = useRef(0);
   const activeRef = useRef(0);
@@ -125,9 +128,18 @@ export default function TrainJourney({ stations, portfolio }: Props) {
     ]);
   }, [stations]);
 
-  /* ---------------------------------------------------------------- */
-  /* RENDER LOOP — parallax, train, stations, theme, outro             */
-  /* Intro is NOT touched here — it runs on its own mount timeline.     */
+  const boardStation = useCallback(
+    (station: Station) => {
+      navigate({
+        href: station.route,
+        number: station.number,
+        title: station.title,
+        subtitle: station.subtitle,
+      });
+    },
+    [navigate]
+  );
+
   /* ---------------------------------------------------------------- */
 
   const render = useCallback(
@@ -177,6 +189,11 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             1
           )}px, 0)`;
           panel.style.visibility = act < 0.005 ? "hidden" : "visible";
+          // Critical: only the panel of the station the train is at can
+          // receive clicks. Otherwise a transparent panel sits above the
+          // signs and swallows every click on the left half of the screen.
+          panel.style.pointerEvents =
+            act > PANEL_INTERACTIVE_AT ? "auto" : "none";
         }
 
         const sign = signRefs.current[i];
@@ -235,7 +252,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   }, [render]);
 
   /* ---------------------------------------------------------------- */
-  /* INTRO — timed timeline, plays once on mount, blocks scroll        */
+  /* INTRO                                                             */
   /* ---------------------------------------------------------------- */
 
   useEffect(() => {
@@ -295,7 +312,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   }, [reduced]);
 
   /* ---------------------------------------------------------------- */
-  /* SCROLL SCENE — pinned journey                                     */
+  /* SCROLL SCENE                                                      */
   /* ---------------------------------------------------------------- */
 
   useEffect(() => {
@@ -416,6 +433,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         progress={progress}
         visible={progress > 0.015 && progress < 0.985}
         onSelect={goToStation}
+        onBoard={boardStation}
       />
 
       <section className="journey" ref={sectionRef} aria-label="Journey">
@@ -463,6 +481,8 @@ export default function TrainJourney({ stations, portfolio }: Props) {
                 station={s}
                 worldX={i * WORLD_SPACING}
                 offsetX={SIGN_OFFSET}
+                active={i === activeIndex}
+                onBoard={boardStation}
                 ref={(el) => {
                   signRefs.current[i] = el;
                 }}

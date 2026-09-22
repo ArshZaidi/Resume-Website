@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { stations } from "@/data/stations";
 import type { Station } from "@/data/stations";
 import { links } from "@/data/links";
+import { useRealmTransition } from "@/components/journey/TransitionProvider";
 
 interface Props {
   station?: Station;
@@ -12,6 +13,7 @@ interface Props {
 
 export default function PersistentNav({ station }: Props) {
   const pathname = usePathname();
+  const navigate = useRealmTransition();
 
   return (
     <nav className="persistent-nav" aria-label="Station navigation">
@@ -23,13 +25,21 @@ export default function PersistentNav({ station }: Props) {
         {stations.map((s) => {
           const active = station?.id === s.id || pathname === s.route;
           return (
-            <Link
+            <button
               key={s.id}
-              href={s.route === "/" ? "/" : s.route}
+              type="button"
               className="persistent-nav__dot"
               data-active={active}
               aria-label={`${s.number} ${s.title}`}
               data-cursor={s.title.toUpperCase()}
+              onClick={() =>
+                navigate({
+                  href: s.route,
+                  number: s.number,
+                  title: s.title,
+                  subtitle: s.subtitle,
+                })
+              }
             />
           );
         })}

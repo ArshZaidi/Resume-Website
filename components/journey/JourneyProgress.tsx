@@ -9,6 +9,8 @@ interface Props {
   progress: number;
   visible: boolean;
   onSelect: (index: number) => void;
+  /** Fired when the user picks a station from the index overlay. */
+  onBoard?: (station: Station) => void;
 }
 
 export default function JourneyProgress({
@@ -17,6 +19,7 @@ export default function JourneyProgress({
   progress,
   visible,
   onSelect,
+  onBoard,
 }: Props) {
   const [open, setOpen] = useState(false);
   const active = stations[activeIndex] ?? stations[0];
@@ -79,8 +82,12 @@ export default function JourneyProgress({
               className="station-index__item"
               data-active={i === activeIndex}
               onClick={() => {
-                onSelect(i);
                 setOpen(false);
+                if (onBoard) {
+                  onBoard(s);
+                } else {
+                  onSelect(i);
+                }
               }}
             >
               <span className="station-index__num">{s.number}</span>
