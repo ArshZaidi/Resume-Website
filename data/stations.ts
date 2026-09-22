@@ -25,9 +25,12 @@ export interface Station {
   progress: number;
   landmark: LandmarkKind;
   theme: StationTheme;
-  /** Hero + destination use a different layout. */
   variant: "hero" | "standard" | "destination";
+  /** Route this station boards into. */
+  route: string;
 }
+
+export const WORLD_SPACING = 1900;
 
 export const stations: Station[] = [
   {
@@ -38,6 +41,7 @@ export const stations: Station[] = [
     progress: 0,
     landmark: "terminal",
     variant: "hero",
+    route: "/",
     theme: {
       skyTop: "#07080B",
       skyBottom: "#10131A",
@@ -53,6 +57,7 @@ export const stations: Station[] = [
     progress: 0.115,
     landmark: "city",
     variant: "standard",
+    route: "/about",
     theme: {
       skyTop: "#0A0A0C",
       skyBottom: "#16161A",
@@ -68,6 +73,7 @@ export const stations: Station[] = [
     progress: 0.235,
     landmark: "campus",
     variant: "standard",
+    route: "/education",
     theme: {
       skyTop: "#08090E",
       skyBottom: "#131626",
@@ -83,6 +89,7 @@ export const stations: Station[] = [
     progress: 0.36,
     landmark: "lab",
     variant: "standard",
+    route: "/skills",
     theme: {
       skyTop: "#06090C",
       skyBottom: "#0F1A1E",
@@ -98,6 +105,7 @@ export const stations: Station[] = [
     progress: 0.5,
     landmark: "factory",
     variant: "standard",
+    route: "/projects",
     theme: {
       skyTop: "#0B0708",
       skyBottom: "#1A1214",
@@ -113,6 +121,7 @@ export const stations: Station[] = [
     progress: 0.635,
     landmark: "metropolis",
     variant: "standard",
+    route: "/experience",
     theme: {
       skyTop: "#090909",
       skyBottom: "#171514",
@@ -128,6 +137,7 @@ export const stations: Station[] = [
     progress: 0.755,
     landmark: "mountains",
     variant: "standard",
+    route: "/achievements",
     theme: {
       skyTop: "#0A0C10",
       skyBottom: "#182030",
@@ -143,6 +153,7 @@ export const stations: Station[] = [
     progress: 0.87,
     landmark: "archive",
     variant: "standard",
+    route: "/certifications",
     theme: {
       skyTop: "#08090B",
       skyBottom: "#14161A",
@@ -158,6 +169,7 @@ export const stations: Station[] = [
     progress: 1,
     landmark: "sunrise",
     variant: "destination",
+    route: "/destination",
     theme: {
       skyTop: "#0E0D12",
       skyBottom: "#2A211C",
@@ -168,4 +180,7 @@ export const stations: Station[] = [
 ];
 
 export const STATION_IDS = stations.map((s) => s.id);
-export const WORLD_SPACING = 1400;
+
+export function getStationByRoute(route: string): Station | undefined {
+  return stations.find((s) => s.route === route);
+}
