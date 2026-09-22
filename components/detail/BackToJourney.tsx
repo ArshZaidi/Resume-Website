@@ -21,9 +21,9 @@ export default function BackToJourney({
       onClick={() =>
         navigate({
           href: "/",
-          number: "00",
-          title: "Departure",
-          subtitle: "Returning to the railway",
+          number: "—",
+          title: "The Main Line",
+          subtitle: "Rejoining the route",
         })
       }
       data-cursor="BOARD"
