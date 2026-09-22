@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import type { Station } from "@/data/stations";
 import { WORLD_SPACING } from "@/data/stations";
 import type { PortfolioData } from "@/data/portfolio";
+import { profile } from "@/data/portfolio";
 
 import {
   clamp,
@@ -17,7 +20,8 @@ import {
   smootherstep,
   type RGB,
 } from "@/lib/utils";
-import { prefersReducedMotion, registerGsap } from "@/lib/animations";
+import { registerGsap } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { scrollToY } from "@/lib/lenis";
 
 import Train from "./Train";
@@ -31,26 +35,22 @@ import { stationPanels } from "@/components/stations/registry";
 /* TUNING                                                              */
 /* ------------------------------------------------------------------ */
 
-/** Scroll distance of the whole journey, in viewport heights. */
 const JOURNEY_VH = 11;
-
-/** Fraction of each inter-station segment spent stationary at each end. */
 const DWELL = 0.17;
-
-/** Activation radius (world px) — full on / fully off. */
 const ACT_NEAR = WORLD_SPACING * 0.07;
 const ACT_FAR = WORLD_SPACING * 0.4;
 
-/** Parallax factors per layer. */
 const FAR = 0.2;
 const MID = 0.55;
 const NEAR = 1.32;
 
-/** Horizontal offset of the station sign relative to the train. */
 const SIGN_OFFSET = 330;
-
-/** Theme colour quantisation steps (repaints only when this changes). */
 const THEME_STEPS = 70;
+
+/** Progress points at which the intro fades out and the outro fades in. */
+const INTRO_FADE_RATE = 16; // intro reaches 0 at progress = 1/16 ≈ 0.0625
+const OUTRO_START = 0.9; // outro begins appearing
+const OUTRO_FADE_RATE = 10; // outro reaches 1 at progress = 1.0
 
 /* ------------------------------------------------------------------ */
 /* TRAIN MOTION MODEL                                                  */
@@ -91,13 +91,16 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   const worldRef = useRef<HTMLDivElement>(null);
   const nearRef = useRef<HTMLDivElement>(null);
   const trainRef = useRef<HTMLDivElement>(null);
+  const introRef = useRef<HTMLDivElement>(null);
+  const outroRef = useRef<HTMLDivElement>(null);
 
   const signRefs = useRef<(HTMLDivElement | null)[]>([]);
   const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [reduced, setReduced] = useState(false);
+
+  const reduced = usePrefersReducedMotion();
 
   const progressRef = useRef(0);
   const activeRef = useRef(0);
@@ -108,7 +111,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
   const worldLength = (stations.length - 1) * WORLD_SPACING;
   const margin = WORLD_SPACING;
 
-  /* Pre-compute RGB triples for every station theme. */
   useEffect(() => {
     rgbCache.current = stations.map((s) => [
       hexToRgb(s.theme.skyTop),
@@ -127,14 +129,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
       const trainX = trainWorldX(p, centers);
 
-      // Velocity sample → camera lead.
       const v =
         trainWorldX(clamp(p + 0.0015, 0, 1), centers) -
         trainWorldX(clamp(p - 0.0015, 0, 1), centers);
       const lead = clamp(-v * 1.1, -70, 70);
       const camX = trainX + lead;
 
-      // ---- parallax layers ----
       if (worldRef.current)
         worldRef.current.style.transform = `translate3d(${-camX}px,0,0)`;
       if (midRef.current)
@@ -144,14 +144,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       if (nearRef.current)
         nearRef.current.style.transform = `translate3d(${-camX * NEAR}px,0,0)`;
 
-      // ---- train ----
       if (trainRef.current)
         trainRef.current.style.transform = `translate3d(${-lead}px,0,0)`;
 
       const speed = clamp(Math.abs(v) / 34);
       scene.style.setProperty("--speed", speed.toFixed(3));
 
-      // ---- station activation ----
       let bestIdx = 0;
       let bestAct = -1;
 
@@ -167,7 +165,9 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         const panel = panelRefs.current[i];
         if (panel) {
           panel.style.opacity = act.toFixed(3);
-          panel.style.transform = `translate3d(0, ${((1 - act) * 26).toFixed(1)}px, 0)`;
+          panel.style.transform = `translate3d(0, ${((1 - act) * 26).toFixed(
+            1
+          )}px, 0)`;
           panel.style.visibility = act < 0.005 ? "hidden" : "visible";
         }
 
@@ -182,7 +182,20 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         setActiveIndex(bestIdx);
       }
 
-      // ---- theme interpolation (quantised) ----
+      // ---- intro / outro overlays ----
+      if (introRef.current) {
+        const op = clamp(1 - p * INTRO_FADE_RATE);
+        introRef.current.style.opacity = op.toFixed(3);
+        introRef.current.style.pointerEvents = op > 0.5 ? "auto" : "none";
+        introRef.current.style.visibility = op < 0.005 ? "hidden" : "visible";
+      }
+      if (outroRef.current) {
+        const op = clamp((p - OUTRO_START) * OUTRO_FADE_RATE);
+        outroRef.current.style.opacity = op.toFixed(3);
+        outroRef.current.style.pointerEvents = op > 0.5 ? "auto" : "none";
+        outroRef.current.style.visibility = op < 0.005 ? "hidden" : "visible";
+      }
+
       const step = Math.round(p * THEME_STEPS);
       if (step !== themeStepRef.current && rgbCache.current.length) {
         themeStepRef.current = step;
@@ -203,7 +216,10 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         const B = rgbCache.current[hi];
         if (A && B) {
           scene.style.setProperty("--sky-top", rgbCss(mixRgb(A[0], B[0], t)));
-          scene.style.setProperty("--sky-bottom", rgbCss(mixRgb(A[1], B[1], t)));
+          scene.style.setProperty(
+            "--sky-bottom",
+            rgbCss(mixRgb(A[1], B[1], t))
+          );
           scene.style.setProperty("--horizon", rgbCss(mixRgb(A[2], B[2], t)));
           scene.style.setProperty("--accent", rgbCss(mixRgb(A[3], B[3], t)));
         }
@@ -221,16 +237,10 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    if (reduced) return;
+
     registerGsap();
-
-    const isReduced = prefersReducedMotion();
-    setReduced(isReduced);
-
-    if (isReduced) {
-      // No pinning, no scrub. Render the journey as a plain vertical read.
-      render(0);
-      return;
-    }
 
     const section = sectionRef.current;
     if (!section) return;
@@ -256,10 +266,8 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       });
     }, section);
 
-    // First paint.
     renderRef.current(0);
 
-    // Track progress for the progress bar at a throttled rate.
     const onTick = () => {
       setProgress((prev) => {
         const next = progressRef.current;
@@ -280,27 +288,27 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       gsap.ticker.remove(onTick);
       ctx.revert();
     };
-  }, [render]);
+  }, [render, reduced]);
 
   /* ---------------------------------------------------------------- */
 
   const goToStation = useCallback(
     (index: number) => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      if (prefersReducedMotion()) {
+      if (reduced) {
         const el = document.getElementById(`station-${stations[index].id}`);
         el?.scrollIntoView({ behavior: "auto" });
         return;
       }
+
+      const section = sectionRef.current;
+      if (!section) return;
 
       const top = section.offsetTop;
       const total = window.innerHeight * JOURNEY_VH;
       const y = top + stations[index].progress * total;
       scrollToY(y, 1.5);
     },
-    [stations]
+    [stations, reduced]
   );
 
   /* ---------------------------------------------------------------- */
@@ -315,7 +323,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
           visible
           onSelect={goToStation}
         />
-        {stations.map((s, i) => {
+        {stations.map((s) => {
           const Panel = stationPanels[s.id];
           if (!Panel) return null;
           return (
@@ -369,7 +377,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             opacity={0.85}
           />
 
-          {/* WORLD — track, platforms, signs */}
+          {/* WORLD */}
           <div className="layer layer--world" ref={worldRef}>
             <Railway worldLength={worldLength} margin={margin} />
 
@@ -377,10 +385,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
               <div
                 key={`platform-${s.id}`}
                 className="platform"
-                style={{
-                  left: i * WORLD_SPACING,
-                  width: 900,
-                }}
+                style={{ left: i * WORLD_SPACING, width: 900 }}
                 aria-hidden="true"
               >
                 <div className="platform__slab" />
@@ -404,7 +409,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
           {/* TRAIN */}
           <Train ref={trainRef} />
 
-          {/* NEAR (foreground blur) */}
+          {/* NEAR */}
           <div className="layer layer--near" ref={nearRef}>
             {stations.map((s, i) => (
               <div
@@ -424,7 +429,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
             ))}
           </div>
 
-          {/* CONTENT PANELS */}
+          {/* STATION PANELS */}
           <div className="panels">
             {stations.map((s, i) => {
               const Panel = stationPanels[s.id];
@@ -447,7 +452,87 @@ export default function TrainJourney({ stations, portfolio }: Props) {
           {/* VIGNETTE */}
           <div className="vignette" />
 
-          {/* HINT */}
+          {/* INTRO OVERLAY */}
+          <div
+            ref={introRef}
+            className="intro-overlay"
+            aria-label="Introduction"
+          >
+            <div className="intro-overlay__inner">
+              <div className="intro-overlay__kicker u-mono">
+                Digital Journey · {new Date().getFullYear()}
+              </div>
+              <h1 className="intro-overlay__title u-display">{profile.name}</h1>
+              <p className="intro-overlay__tagline">{profile.shortRole}</p>
+
+              <div className="intro-overlay__actions">
+                <Link
+                  href={profile.links.github}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="btn"
+                  data-cursor="OPEN"
+                >
+                  GitHub
+                </Link>
+                <Link
+                  href={profile.links.linkedin}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="btn"
+                  data-cursor="OPEN"
+                >
+                  LinkedIn
+                </Link>
+                <Link
+                  href={profile.links.email}
+                  className="btn btn--solid"
+                  data-cursor="OPEN"
+                >
+                  Get in touch
+                </Link>
+              </div>
+
+              <div className="intro-overlay__hint" aria-hidden="true">
+                <ArrowDown size={12} strokeWidth={1.6} />
+                <span className="u-mono">Scroll to depart</span>
+              </div>
+            </div>
+          </div>
+
+          {/* OUTRO OVERLAY */}
+          <div
+            ref={outroRef}
+            className="outro-overlay"
+            aria-label="Journey complete"
+          >
+            <div className="outro-overlay__inner">
+              <div className="outro-overlay__kicker u-mono">
+                Journey complete
+              </div>
+              <h2 className="outro-overlay__title u-display">
+                Let&apos;s build something.
+              </h2>
+              <p className="outro-overlay__tagline">
+                The train stops here. The work doesn&apos;t.
+              </p>
+
+              <div className="outro-overlay__actions">
+                <Link
+                  href="/contact"
+                  className="btn btn--solid"
+                  data-cursor="BOARD"
+                >
+                  Open destination <ArrowUpRight size={12} strokeWidth={1.6} />
+                </Link>
+                <Link href="/" className="btn" data-cursor="HOME">
+                  Return to start
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* SCROLL HINT — hidden once the intro is gone */}
           <div
             className="scroll-hint"
             style={{ opacity: progress > 0.02 ? 0 : 1 }}

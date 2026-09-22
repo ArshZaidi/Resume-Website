@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import { TransitionProvider } from "@/components/journey/TransitionProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ const mono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE = "https://arshzaidi.com"; // TODO: replace with your deployed domain
+const SITE = "https://arshzaidi.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -34,7 +35,6 @@ export const metadata: Metadata = {
     "AI developer",
     "machine learning",
     "Next.js portfolio",
-    "KAIST applicant",
   ],
   authors: [{ name: "Arsh Zaidi" }],
   openGraph: {
@@ -79,7 +79,9 @@ export default function RootLayout({
       }
     >
       <body>
-        <SmoothScroll>{children}</SmoothScroll>
+        <SmoothScroll>
+          <TransitionProvider>{children}</TransitionProvider>
+        </SmoothScroll>
       </body>
     </html>
   );

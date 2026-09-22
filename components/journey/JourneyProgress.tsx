@@ -20,12 +20,16 @@ export default function JourneyProgress({
 }: Props) {
   const [open, setOpen] = useState(false);
   const active = stations[activeIndex] ?? stations[0];
+  const lastNumber = stations[stations.length - 1]?.number ?? "00";
 
   return (
     <>
       <div
         className="journey-progress"
-        style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? "auto" : "none" }}
+        style={{
+          opacity: visible ? 1 : 0,
+          pointerEvents: visible ? "auto" : "none",
+        }}
       >
         <div className="journey-progress__brand">Arsh Zaidi</div>
 
@@ -52,8 +56,7 @@ export default function JourneyProgress({
             </div>
           </div>
           <span className="journey-progress__label">
-            {active.number} / {String(stations.length - 1).padStart(2, "0")} ·{" "}
-            {active.title}
+            {active.number} / {lastNumber} · {active.title}
           </span>
         </button>
       </div>
@@ -66,7 +69,10 @@ export default function JourneyProgress({
         aria-modal="true"
         aria-label="Station index"
       >
-        <nav className="station-index__list" onClick={(e) => e.stopPropagation()}>
+        <nav
+          className="station-index__list"
+          onClick={(e) => e.stopPropagation()}
+        >
           {stations.map((s, i) => (
             <button
               key={s.id}

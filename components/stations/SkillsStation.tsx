@@ -13,23 +13,23 @@ export default function SkillsStation({ data, active }: StationPanelProps) {
       </h2>
 
       <div className="row-list">
-        {data.skills.map((g, i) => (
+        {data.skills.map((group, i) => (
           <div
             className="row fade-up"
-            key={g.id}
+            key={group.id}
             style={{
               transitionDelay: `${120 + i * 70}ms`,
               gridTemplateColumns: "150px 1fr",
             }}
           >
             <div className="row__period" style={{ letterSpacing: "0.16em" }}>
-              {g.label}
+              {group.label}
             </div>
             <div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {g.items.map((item) => (
-                  <span className="tag" key={item}>
-                    {item}
+                {group.items.map((skill) => (
+                  <span className="tag" key={skill.name}>
+                    {skill.name}
                   </span>
                 ))}
               </div>
@@ -40,7 +40,8 @@ export default function SkillsStation({ data, active }: StationPanelProps) {
                   color: "var(--text-faint)",
                 }}
               >
-                {g.note}
+                {group.items.length}{" "}
+                {group.items.length === 1 ? "skill" : "skills"}
               </div>
             </div>
           </div>
