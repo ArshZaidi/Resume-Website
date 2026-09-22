@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import {
-  Github,
-  Linkedin,
   Code,
   Award,
   Terminal,
@@ -13,12 +11,19 @@ import {
   Sparkles,
   ArrowUpRight,
 } from "lucide-react";
+import { GitHubIcon, LinkedInIcon } from "@/components/ui/BrandIcons";
 import { technicalLinks } from "@/data/links";
 import { prefersReducedMotion } from "@/lib/animations";
 
-const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
-  github: Github,
-  linkedin: Linkedin,
+type IconComponent = React.ComponentType<{
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}>;
+
+const ICONS: Record<string, IconComponent> = {
+  github: GitHubIcon,
+  linkedin: LinkedInIcon,
   code: Code,
   award: Award,
   terminal: Terminal,
@@ -33,7 +38,10 @@ interface Props {
   className?: string;
 }
 
-export default function TechnicalIdentity({ variant = "rail", className }: Props) {
+export default function TechnicalIdentity({
+  variant = "rail",
+  className,
+}: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

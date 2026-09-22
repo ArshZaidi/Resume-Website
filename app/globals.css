@@ -1802,3 +1802,900 @@ body {
     display: none;
   }
 }
+
+/* ================================================================== */
+/* SCROLL PRIMITIVES                                                   */
+/* ================================================================== */
+
+.scroll-section {
+  padding: 140px 0;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.scroll-section:last-of-type {
+  border-bottom: 0;
+}
+
+.scroll-section--full {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.scroll-section--center .scroll-section__header {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.scroll-section__header {
+  max-width: 720px;
+  margin-bottom: 64px;
+}
+
+.scroll-section__num {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: block;
+}
+
+.scroll-section__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  font-size: clamp(2rem, 4.2vw, 3.6rem);
+  margin: 0;
+}
+
+.scroll-section__lead {
+  margin-top: 22px;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.65;
+  max-width: 60ch;
+}
+
+.scroll-section__body {
+  position: relative;
+}
+
+/* ---------------- Parallax ---------------- */
+
+.parallax {
+  will-change: transform;
+}
+
+/* ---------------- Horizontal rail ---------------- */
+
+.h-rail {
+  position: relative;
+  overflow: hidden;
+}
+
+.h-rail__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 clamp(20px, 6vw, 96px);
+  margin-bottom: 40px;
+}
+
+.h-rail__viewport {
+  overflow: hidden;
+}
+
+.h-rail__track {
+  display: flex;
+  gap: 40px;
+  padding: 0 clamp(20px, 6vw, 96px);
+  will-change: transform;
+}
+
+.h-rail--static .h-rail__viewport {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.h-rail--static .h-rail__track {
+  padding-bottom: 24px;
+}
+
+/* ---------------- Scroll progress ---------------- */
+
+.scroll-progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 14px clamp(20px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(5 5 6 / 0.7) 100%
+  );
+}
+
+.scroll-progress__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.scroll-progress__num {
+  color: var(--text);
+}
+
+.scroll-progress__title {
+  color: var(--text-dim);
+}
+
+.scroll-progress__track {
+  position: relative;
+  height: 1px;
+  background: rgb(255 255 255 / 0.12);
+  overflow: hidden;
+}
+
+.scroll-progress__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
+  transition: transform 0.18s linear;
+}
+
+@media (max-width: 720px) {
+  .scroll-progress__meta {
+    gap: 10px;
+  }
+  .scroll-progress__title {
+    display: none;
+  }
+}
+
+/* ---------------- Magnetic element ---------------- */
+
+.magnetic-el {
+  display: inline-flex;
+  will-change: transform;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+/* ================================================================== */
+/* REALM LAYER                                                         */
+/* ================================================================== */
+
+.realm {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.realm__sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    var(--sky-top) 0%,
+    var(--sky-bottom) 62%,
+    #050506 100%
+  );
+}
+
+.realm__glow {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 150vw;
+  height: 60vh;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--horizon) 72%, transparent) 0%,
+    transparent 68%
+  );
+  filter: blur(8px);
+}
+
+.realm__haze {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 46%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--horizon) 24%, transparent) 100%
+  );
+}
+
+.realm__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 42%, rgb(0 0 0 / 0.5) 100%),
+    linear-gradient(180deg, rgb(0 0 0 / 0.28) 0%, transparent 20%, transparent 74%, rgb(0 0 0 / 0.55) 100%);
+}
+
+.realm__particles {
+  position: absolute;
+  inset: -10%;
+  overflow: hidden;
+}
+
+.realm__particle {
+  position: absolute;
+  top: -10%;
+  will-change: transform;
+  opacity: 0;
+}
+
+/* ---- dust ---- */
+.realm__particle--dust {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* ---- snow ---- */
+.realm__particle--snow {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.75);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* ---- rain ---- */
+.realm__particle--rain {
+  width: 1px;
+  height: 22px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(180 210 230 / 0.5)
+  );
+  animation-name: realm-rain;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+/* ---- petals ---- */
+.realm__particle--petal {
+  width: 6px;
+  height: 6px;
+  border-radius: 50% 0 50% 0;
+  background: rgb(240 200 210 / 0.5);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ---- pollen ---- */
+.realm__particle--pollen {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgb(255 240 190 / 0.6);
+  box-shadow: 0 0 6px 1px rgb(255 240 190 / 0.4);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ---- leaves ---- */
+.realm__particle--leaf {
+  width: 8px;
+  height: 4px;
+  border-radius: 50% 0;
+  background: rgb(200 150 90 / 0.6);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ---- spark ---- */
+.realm__particle--spark {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgb(240 194 123 / 0.85);
+  box-shadow: 0 0 10px 2px rgb(240 194 123 / 0.5);
+  animation-name: realm-fall-drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes realm-fall-drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(var(--drift, 40px), 120vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes realm-rain {
+  0% {
+    transform: translate3d(0, -20%, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 10px), 130vh, 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .realm__particle {
+    animation: none !important;
+    opacity: 0.2;
+  }
+}
+
+/* ================================================================== */
+/* DETAIL SHELL — adjustments for realm integration                    */
+/* ================================================================== */
+
+.detail {
+  position: relative;
+  isolation: isolate;
+}
+
+.detail__scroll {
+  position: relative;
+  z-index: 1;
+}
+
+.detail__realm {
+  margin-top: 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* Remove the old solid hero background — realm provides it now. */
+.detail__hero {
+  background: transparent;
+  border-bottom: 0;
+}
+
+.detail__hero-bg {
+  display: none;
+}
+
+/* ================================================================== */
+/* SECTION REVEAL                                                      */
+/* ================================================================== */
+
+.section-reveal {
+  position: relative;
+}
+
+/* ================================================================== */
+/* REALM TRANSITION OVERLAY                                            */
+/* ================================================================== */
+
+.realm-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: none;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.realm-transition[data-active="true"] {
+  pointer-events: auto;
+}
+
+.realm-transition__bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #06060a 0%,
+    #0e0f14 60%,
+    #050506 100%
+  );
+}
+
+.realm-transition__rails {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 22%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  opacity: 0.35;
+}
+
+.realm-transition__rail {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.4) 30%,
+    rgb(255 255 255 / 0.4) 70%,
+    transparent 100%
+  );
+}
+
+.realm-transition__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.realm-transition__num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.realm-transition__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 6vw, 4.6rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.realm-transition__sub {
+  margin-top: 22px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ================================================================== */
+/* EDUCATION PAGE                                                      */
+/* ================================================================== */
+
+.edu-opening {
+  position: relative;
+  padding: 40px 0;
+}
+
+.edu-opening__number {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(9rem, 30vw, 22rem);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  color: var(--text);
+  opacity: 0.08;
+  will-change: transform;
+}
+
+.edu-opening__caption {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.edu-opening__line {
+  flex: 1;
+  max-width: 220px;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.edu-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.edu-entry__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 20px;
+}
+
+.edu-entry__period {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+}
+
+.edu-entry__score {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+
+.edu-entry__detail {
+  max-width: 68ch;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.edu-entry__timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+
+.edu-milestone {
+  background: var(--bg);
+  padding: 24px 22px;
+}
+
+.edu-milestone__year {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 12px;
+}
+
+.edu-milestone__body strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.2rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.edu-milestone__body span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.edu-entry__proof {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.edu-entry__proof-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.edu-closing {
+  max-width: 62ch;
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.edu-closing p + p {
+  margin-top: 20px;
+}
+
+.edu-closing strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .edu-entry__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ================================================================== */
+/* SKILLS PAGE                                                         */
+/* ================================================================== */
+
+.skills-intro {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  margin-top: 8px;
+}
+
+.skills-intro__stat {
+  background: var(--bg);
+  padding: 28px 24px;
+}
+
+.skills-intro__num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 2.6rem;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+}
+
+.skills-intro__label {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ---- Horizontal rail slides ---- */
+
+.skill-slide {
+  flex: 0 0 auto;
+  width: min(460px, 78vw);
+  padding: 30px 32px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.skill-slide__index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+}
+
+.skill-slide__label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.6rem;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.skill-slide__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skill-slide__items li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.skill-slide__name {
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.skill-slide__count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/* ---- Skill → project connections ---- */
+
+.skill-connections {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.skill-connection-group {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.skill-connection-group__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.skill-connection {
+  display: grid;
+  grid-template-columns: 200px 40px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.skill-connection__name {
+  font-size: 0.94rem;
+  color: var(--text);
+}
+
+.skill-connection__line {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--line-strong) 0%,
+    transparent 100%
+  );
+}
+
+.skill-connection__targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skill-target {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  padding: 4px 9px;
+}
+
+@media (max-width: 720px) {
+  .skill-connection {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .skill-connection__line {
+    display: none;
+  }
+}
+
+/* ================================================================== */
+/* MARQUEE (auto-scrolling rail)                                       */
+/* ================================================================== */
+
+.marquee {
+  position: relative;
+  width: 100%;
+}
+
+.marquee__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 32px;
+}
+
+.marquee__viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee__copy {
+  display: flex;
+  gap: 32px;
+  /* Trailing gap so the loop is seamless. */
+  padding-right: 32px;
+}
+
+/* Static fallback under reduced motion */
+.marquee--static .marquee__viewport {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.marquee--static .marquee__track {
+  gap: 32px;
+  padding-bottom: 20px;
+}
+
+/* ================================================================== */
+/* SKILL SLIDE (used inside the marquee)                               */
+/* ================================================================== */
+
+.skill-slide {
+  flex: 0 0 auto;
+  width: min(440px, 76vw);
+  padding: 28px 30px;
+  border: 1px solid var(--line);
+  background: rgb(11 11 12 / 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}

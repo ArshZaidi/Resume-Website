@@ -1,13 +1,26 @@
-import { ArrowUpRight, Github, Award, FileText, Play, Linkedin, Globe } from "lucide-react";
+import {
+  ArrowUpRight,
+  Award,
+  FileText,
+  Play,
+  Globe,
+} from "lucide-react";
+import { GitHubIcon, LinkedInIcon } from "@/components/ui/BrandIcons";
 import type { Proof } from "@/data/proof";
 
-const ICONS: Record<string, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
-  github: Github,
+type IconComponent = React.ComponentType<{
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+}>;
+
+const ICONS: Record<string, IconComponent> = {
+  github: GitHubIcon,
+  linkedin: LinkedInIcon,
   live: Globe,
   certificate: Award,
   publication: FileText,
   video: Play,
-  linkedin: Linkedin,
   document: FileText,
   award: Award,
   profile: Globe,

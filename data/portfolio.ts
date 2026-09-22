@@ -122,7 +122,8 @@ export const profile = {
 };
 
 /* ------------------------------------------------------------------ */
-/* EDUCATION                                                           */
+/* EDUCATION — school only. IIT Madras and DELF live under            */
+/* certifications, not here.                                           */
 /* ------------------------------------------------------------------ */
 
 export const education: EducationEntry[] = [
@@ -135,24 +136,6 @@ export const education: EducationEntry[] = [
       "Fourteen years at one of India's most demanding CBSE schools. Built an academic foundation on discipline, curiosity and consistency — sustained across the full arc from primary through senior secondary.",
     score: "Class X: 96% · Class XII: 92%",
     proof: ["dps-scholar-trophy", "dps-certificate"],
-  },
-  {
-    id: "iitm",
-    period: "2024",
-    institution: "IIT Madras",
-    credential: "AI & Data Science",
-    detail:
-      "A two-month certification course in artificial intelligence and data science. Built an undergraduate-level machine learning project against a real-time database. Received both a Certificate of Completion and a Certificate of Appreciation for Excellent Performance.",
-    proof: ["iitm-cert"],
-  },
-  {
-    id: "delf",
-    period: "2022 — 2024",
-    institution: "DELF — French",
-    credential: "A1 · A2 · B1",
-    detail:
-      "Completed all three levels of the Diplôme d'Études en Langue Française with comfortable margins. DELF is the official French-language diploma issued by the French Ministry of Education.",
-    proof: ["delf-a1", "delf-a2", "delf-b1"],
   },
 ];
 
@@ -301,9 +284,7 @@ export const projects: Project[] = [
     timeline: "2024 — present",
     stack: ["Python", "FastAPI", "PostgreSQL / Supabase", "AI/ML", "Tailwind CSS"],
     status: "Live",
-    links: [
-      { label: "Visit", href: "https://myraq.vercel.app" },
-    ],
+    links: [{ label: "Visit", href: "https://myraq.vercel.app" }],
     proof: ["myraq-live"],
     taught:
       "Product development, AI integration, translating an ambiguous real-world problem into concrete features, and building an end-to-end startup prototype.",
@@ -348,9 +329,7 @@ export const projects: Project[] = [
     timeline: "2025",
     stack: ["MCP", "Python", "AI tooling", "APIs"],
     status: "Open source",
-    links: [
-      { label: "GitHub", href: "https://github.com/ArshZaidi" },
-    ],
+    links: [{ label: "GitHub", href: "https://github.com/ArshZaidi" }],
     taught:
       "MCP architecture, AI-tool integration, API design, and designing software around agent interaction rather than only traditional user interfaces.",
     tier: "major",
@@ -383,9 +362,7 @@ export const projects: Project[] = [
     timeline: "2025",
     stack: ["Desmos", "Parametric geometry"],
     status: "Open source",
-    links: [
-      { label: "GitHub", href: "https://github.com/ArshZaidi" },
-    ],
+    links: [{ label: "GitHub", href: "https://github.com/ArshZaidi" }],
     taught:
       "Procedural generation, mathematical thinking, visual experimentation, and translating mathematical concepts into computational systems.",
     tier: "minor",
@@ -400,9 +377,7 @@ export const projects: Project[] = [
     timeline: "2025",
     stack: ["Python"],
     status: "Open source",
-    links: [
-      { label: "GitHub", href: "https://github.com/ArshZaidi" },
-    ],
+    links: [{ label: "GitHub", href: "https://github.com/ArshZaidi" }],
     taught:
       "Data structures, abstraction, algorithmic thinking, implementation details, and writing reusable Python code.",
     tier: "minor",
@@ -500,27 +475,15 @@ export const achievements: AchievementGroup[] = [
         meta: "Certificate + trophy",
         proof: ["dps-scholar-trophy"],
       },
-      {
-        title: "Computer Science Valedictorian",
-        meta: "DPS",
-      },
-      {
-        title: "Mathematics — top percentile",
-        meta: "Throughout high school",
-      },
+      { title: "Computer Science Valedictorian", meta: "DPS" },
+      { title: "Mathematics — top percentile", meta: "Throughout high school" },
       {
         title: "Outstanding Performance Award",
         meta: "Alika Group of Excellence · Class X",
         proof: ["alika-award"],
       },
-      {
-        title: "Class X — 96%",
-        meta: "94 Mathematics · 97 AI",
-      },
-      {
-        title: "Class XII — 92%",
-        meta: "92 Mathematics · 94 CS",
-      },
+      { title: "Class X — 96%", meta: "94 Mathematics · 97 AI" },
+      { title: "Class XII — 92%", meta: "92 Mathematics · 94 CS" },
     ],
   },
   {

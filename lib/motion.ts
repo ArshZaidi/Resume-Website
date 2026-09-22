@@ -10,39 +10,39 @@ export function registerDetailGsap() {
 }
 
 /**
- * Reveal every [data-reveal] element inside a container on scroll.
- * Uses ScrollTrigger.batch for performance.
+ * Batch-reveal every [data-reveal] element inside the container.
+ * Elements start visible in CSS (a11y-safe); we hide them in JS
+ * right before animating, so a JS failure or reduced-motion leaves
+ * content readable.
  */
-export function revealOnScroll(
-  container: HTMLElement,
-  opts: { y?: number; stagger?: number; start?: string } = {}
-) {
-  const { y = 34, stagger = 0.08, start = "top 82%" } = opts;
-
-  const targets = container.querySelectorAll<HTMLElement>("[data-reveal]");
+export function setupReveals(container: HTMLElement) {
+  const targets = Array.from(
+    container.querySelectorAll<HTMLElement>("[data-reveal]")
+  );
   if (!targets.length) return;
 
-  gsap.set(targets, { opacity: 0, y });
+  gsap.set(targets, { opacity: 0, y: 34 });
 
   ScrollTrigger.batch(targets, {
-    start,
+    start: "top 85%",
     once: true,
     onEnter: (batch) =>
       gsap.to(batch, {
         opacity: 1,
         y: 0,
         duration: 0.9,
-        stagger,
+        stagger: 0.08,
         ease: "power3.out",
+        overwrite: true,
       }),
   });
 }
 
 /**
- * Subtle vertical parallax for [data-parallax] elements.
- * Value is the data attribute — e.g. data-parallax="0.2" → 20% travel.
+ * Vertical parallax for [data-parallax="0.15"] elements.
+ * Value = fraction of travel in each direction.
  */
-export function parallaxOnScroll(container: HTMLElement) {
+export function setupParallax(container: HTMLElement) {
   const targets = container.querySelectorAll<HTMLElement>("[data-parallax]");
   targets.forEach((el) => {
     const factor = parseFloat(el.dataset.parallax ?? "0.15");
@@ -60,5 +60,42 @@ export function parallaxOnScroll(container: HTMLElement) {
         },
       }
     );
+  });
+}
+
+/**
+ * Text-scramble reveal for [data-scramble]. Optional flourish —
+ * use sparingly (station numbers, hero words).
+ */
+export function setupScramble(container: HTMLElement) {
+  const targets = container.querySelectorAll<HTMLElement>("[data-scramble]");
+  targets.forEach((el) => {
+    const final = el.textContent ?? "";
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const obj = { p: 0 };
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: "top 88%",
+      once: true,
+      onEnter: () => {
+        gsap.to(obj, {
+          p: 1,
+          duration: 1.1,
+          ease: "power2.out",
+          onUpdate: () => {
+            const reveal = Math.floor(obj.p * final.length);
+            let out = final.slice(0, reveal);
+            for (let i = reveal; i < final.length; i++) {
+              out += chars[Math.floor(Math.random() * chars.length)];
+            }
+            el.textContent = out;
+          },
+          onComplete: () => {
+            el.textContent = final;
+          },
+        });
+      },
+    });
   });
 }

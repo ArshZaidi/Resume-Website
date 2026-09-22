@@ -162,14 +162,14 @@ export const stations: Station[] = [
     },
   },
   {
-    id: "destination",
+    id: "contact",
     number: "08",
     title: "Destination",
     subtitle: "Let's build something",
     progress: 1,
     landmark: "sunrise",
     variant: "destination",
-    route: "/destination",
+    route: "/contact",
     theme: {
       skyTop: "#0E0D12",
       skyBottom: "#2A211C",
