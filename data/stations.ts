@@ -168,3 +168,4 @@ export const stations: Station[] = [
 ];
 
 export const STATION_IDS = stations.map((s) => s.id);
+export const WORLD_SPACING = 1400;
