@@ -1,7 +1,12 @@
 import type { LandmarkKind } from "@/data/stations";
 
-const SKYLINES: Record<Exclude<LandmarkKind, "mountains" | "sunrise">, number[]> = {
-  terminal: [26, 48, 34, 62, 40, 54, 30, 44, 38, 58, 34, 50],
+/**
+ * Landmark kinds that render a skyline band. `mountains` is handled
+ * separately below, so it's excluded from this map.
+ */
+type SkylineKind = Exclude<LandmarkKind, "mountains">;
+
+const SKYLINES: Record<SkylineKind, number[]> = {
   city: [38, 58, 44, 74, 50, 66, 40, 62, 46, 70, 42, 56],
   campus: [30, 36, 52, 44, 38, 56, 34, 46, 40, 52, 36, 48],
   lab: [22, 30, 26, 44, 24, 52, 28, 46, 22, 40, 26, 38],
@@ -34,29 +39,6 @@ export default function Landmark({ kind }: Props) {
         <path
           d="M0 300 L0 250 L160 190 L300 236 L440 168 L580 226 L720 178 L860 240 L1000 194 L1140 244 L1200 218 L1200 300 Z"
           fill="rgb(255 255 255 / 0.03)"
-        />
-      </svg>
-    );
-  }
-
-  if (kind === "sunrise") {
-    return (
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        width={W}
-        height={H}
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <circle cx="600" cy="228" r="86" fill="var(--accent)" opacity="0.14" />
-        <circle cx="600" cy="228" r="46" fill="var(--accent)" opacity="0.22" />
-        <path
-          d="M0 300 L0 268 L1200 268 L1200 300 Z"
-          fill="rgb(255 255 255 / 0.04)"
-        />
-        <path
-          d="M0 300 L0 282 L1200 282 L1200 300 Z"
-          fill="rgb(255 255 255 / 0.05)"
         />
       </svg>
     );
