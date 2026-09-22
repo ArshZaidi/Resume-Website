@@ -17,7 +17,8 @@ import {
   smootherstep,
   type RGB,
 } from "@/lib/utils";
-import { prefersReducedMotion, registerGsap } from "@/lib/animations";
+import { registerGsap } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { scrollToY } from "@/lib/lenis";
 
 import Train from "./Train";
@@ -31,25 +32,16 @@ import { stationPanels } from "@/components/stations/registry";
 /* TUNING                                                              */
 /* ------------------------------------------------------------------ */
 
-/** Scroll distance of the whole journey, in viewport heights. */
 const JOURNEY_VH = 11;
-
-/** Fraction of each inter-station segment spent stationary at each end. */
 const DWELL = 0.17;
-
-/** Activation radius (world px) — full on / fully off. */
 const ACT_NEAR = WORLD_SPACING * 0.07;
 const ACT_FAR = WORLD_SPACING * 0.4;
 
-/** Parallax factors per layer. */
 const FAR = 0.2;
 const MID = 0.55;
 const NEAR = 1.32;
 
-/** Horizontal offset of the station sign relative to the train. */
 const SIGN_OFFSET = 330;
-
-/** Theme colour quantisation steps (repaints only when this changes). */
 const THEME_STEPS = 70;
 
 /* ------------------------------------------------------------------ */
@@ -97,7 +89,8 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [reduced, setReduced] = useState(false);
+
+  const reduced = usePrefersReducedMotion();
 
   const progressRef = useRef(0);
   const activeRef = useRef(0);
@@ -127,14 +120,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
       const trainX = trainWorldX(p, centers);
 
-      // Velocity sample → camera lead.
       const v =
         trainWorldX(clamp(p + 0.0015, 0, 1), centers) -
         trainWorldX(clamp(p - 0.0015, 0, 1), centers);
       const lead = clamp(-v * 1.1, -70, 70);
       const camX = trainX + lead;
 
-      // ---- parallax layers ----
       if (worldRef.current)
         worldRef.current.style.transform = `translate3d(${-camX}px,0,0)`;
       if (midRef.current)
@@ -144,14 +135,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       if (nearRef.current)
         nearRef.current.style.transform = `translate3d(${-camX * NEAR}px,0,0)`;
 
-      // ---- train ----
       if (trainRef.current)
         trainRef.current.style.transform = `translate3d(${-lead}px,0,0)`;
 
       const speed = clamp(Math.abs(v) / 34);
       scene.style.setProperty("--speed", speed.toFixed(3));
 
-      // ---- station activation ----
       let bestIdx = 0;
       let bestAct = -1;
 
@@ -182,7 +171,6 @@ export default function TrainJourney({ stations, portfolio }: Props) {
         setActiveIndex(bestIdx);
       }
 
-      // ---- theme interpolation (quantised) ----
       const step = Math.round(p * THEME_STEPS);
       if (step !== themeStepRef.current && rgbCache.current.length) {
         themeStepRef.current = step;
@@ -221,16 +209,12 @@ export default function TrainJourney({ stations, portfolio }: Props) {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Reduced motion: the fallback JSX below handles everything.
+    // No pinning, no scrub, no GSAP setup.
+    if (reduced) return;
+
     registerGsap();
-
-    const isReduced = prefersReducedMotion();
-    setReduced(isReduced);
-
-    if (isReduced) {
-      // No pinning, no scrub. Render the journey as a plain vertical read.
-      render(0);
-      return;
-    }
 
     const section = sectionRef.current;
     if (!section) return;
@@ -256,10 +240,8 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       });
     }, section);
 
-    // First paint.
     renderRef.current(0);
 
-    // Track progress for the progress bar at a throttled rate.
     const onTick = () => {
       setProgress((prev) => {
         const next = progressRef.current;
@@ -280,27 +262,27 @@ export default function TrainJourney({ stations, portfolio }: Props) {
       gsap.ticker.remove(onTick);
       ctx.revert();
     };
-  }, [render]);
+  }, [render, reduced]);
 
   /* ---------------------------------------------------------------- */
 
   const goToStation = useCallback(
     (index: number) => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      if (prefersReducedMotion()) {
+      if (reduced) {
         const el = document.getElementById(`station-${stations[index].id}`);
         el?.scrollIntoView({ behavior: "auto" });
         return;
       }
+
+      const section = sectionRef.current;
+      if (!section) return;
 
       const top = section.offsetTop;
       const total = window.innerHeight * JOURNEY_VH;
       const y = top + stations[index].progress * total;
       scrollToY(y, 1.5);
     },
-    [stations]
+    [stations, reduced]
   );
 
   /* ---------------------------------------------------------------- */
@@ -315,7 +297,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
           visible
           onSelect={goToStation}
         />
-        {stations.map((s, i) => {
+        {stations.map((s) => {
           const Panel = stationPanels[s.id];
           if (!Panel) return null;
           return (
@@ -404,7 +386,7 @@ export default function TrainJourney({ stations, portfolio }: Props) {
           {/* TRAIN */}
           <Train ref={trainRef} />
 
-          {/* NEAR (foreground blur) */}
+          {/* NEAR (foreground) */}
           <div className="layer layer--near" ref={nearRef}>
             {stations.map((s, i) => (
               <div

@@ -2,23 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import { prefersReducedMotion } from "@/lib/animations";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 
 export default function Preloader() {
+  const reduced = usePrefersReducedMotion();
   const [done, setDone] = useState(false);
+
   const rootRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const pctRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    if (prefersReducedMotion()) {
-      setDone(true);
-      return;
-    }
+    // Reduced motion: never start the animation. The `if (reduced)`
+    // early return below keeps this component from rendering at all.
+    if (reduced) return;
 
     const counter = { v: 0 };
+
     const tl = gsap.timeline({
       onComplete: () => setDone(true),
     });
@@ -41,9 +41,9 @@ export default function Preloader() {
     return () => {
       tl.kill();
     };
-  }, []);
+  }, [reduced]);
 
-  if (done) return null;
+  if (reduced || done) return null;
 
   return (
     <div className="preloader" ref={rootRef} aria-hidden="true">
